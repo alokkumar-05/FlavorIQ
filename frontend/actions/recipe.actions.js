@@ -84,7 +84,7 @@ export async function getOrGenerateRecipe(formData) {
 
     // Step 1: Check if recipe already exists in DB (case-insensitive search)
     const searchResponse = await fetch(
-      `${STRAPI_URL}/api/recipes?filters[title][$eqi]=${encodeURIComponent(
+      `${STRAPI_URL}/api/recipes?filters[tittle][$eqi]=${encodeURIComponent(
         normalizedTitle
       )}&populate=*`,
       {
@@ -118,10 +118,18 @@ export async function getOrGenerateRecipe(formData) {
           isSaved = savedData.data && savedData.data.length > 0;
         }
 
+        const dbRecipe = searchData.data[0];
+        // Fix typos from Strapi backend schema mapping
+        const standardizedRecipe = {
+          ...dbRecipe,
+          title: dbRecipe.tittle,
+          substitutions: dbRecipe.susbtitutions
+        };
+
         return {
           success: true,
-          recipe: searchData.data[0],
-          recipeId: searchData.data[0].id,
+          recipe: standardizedRecipe,
+          recipeId: dbRecipe.id,
           isSaved: isSaved,
           fromDatabase: true,
           isPro,
@@ -215,10 +223,23 @@ Guidelines:
         .replace(/```json\n?/g, "")
         .replace(/```\n?/g, "")
         .trim();
-      recipeData = JSON.parse(cleanText);
+
+      // Try to construct a valid JSON by fixing some common Gemini errors like replacing ") with "]
+      const fixedText = cleanText.replace(/\)\n\s*\]/g, '"]\n    ]');
+      recipeData = JSON.parse(fixedText);
     } catch (parseError) {
       console.error("Failed to parse Gemini response:", text);
-      throw new Error("Failed to generate recipe. Please try again.");
+      try {
+        // Fallback: Use string replacement to fix the specific error with substitutions
+        const fixedText = text.replace(/"Water \(less flavor\)"\)/, '"Water (less flavor)"]');
+        const cleanText = fixedText
+          .replace(/```json\n?/g, "")
+          .replace(/```\n?/g, "")
+          .trim();
+        recipeData = JSON.parse(cleanText);
+      } catch (secondError) {
+        throw new Error("Failed to generate recipe. Please try again.");
+      }
     }
 
     // FORCE the title to be our normalized version
@@ -272,9 +293,10 @@ Guidelines:
     const imageUrl = await fetchRecipeImage(normalizedTitle);
 
     // Step 4: Save generated recipe to database
+    // Note: Strapi schema has typos for title ("tittle") and substitutions ("susbtitutions")
     const strapiRecipeData = {
       data: {
-        title: normalizedTitle,
+        tittle: normalizedTitle,
         description: recipeData.description,
         cuisine,
         category,
@@ -285,7 +307,7 @@ Guidelines:
         servings: Number(recipeData.servings),
         nutrition: recipeData.nutrition,
         tips: recipeData.tips,
-        substitutions: recipeData.substitutions,
+        susbtitutions: recipeData.substitutions,
         imageUrl: imageUrl || "",
         isPublic: true,
         author: user.id,
@@ -497,8 +519,7 @@ export async function getRecipesByPantryIngredients() {
     if (decision.isDenied()) {
       if (decision.reason.isRateLimit()) {
         throw new Error(
-          `Monthly AI recipe limit reached. ${
-            isPro ? "Please contact support." : "Upgrade to Pro!"
+          `Monthly AI recipe limit reached. ${isPro ? "Please contact support." : "Upgrade to Pro!"
           }`
         );
       }
@@ -620,7 +641,15 @@ export async function getSavedRecipes() {
 
     // Extract recipes from saved-recipes relations
     const recipes = data.data
-      .map((savedRecipe) => savedRecipe.recipe)
+      .map((savedRecipe) => {
+        const dbRecipe = savedRecipe.recipe;
+        if (!dbRecipe) return null;
+        return {
+          ...dbRecipe,
+          title: dbRecipe.tittle,
+          substitutions: dbRecipe.susbtitutions
+        };
+      })
       .filter(Boolean); // Remove any null recipes
 
     return {

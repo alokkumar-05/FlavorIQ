@@ -1,7 +1,7 @@
 import { Camera, BookOpen, ChefHat, Search } from "lucide-react";
 
 export const SITE_STATS = [
-  { label: "Free Scans", val: "10/mo" },
+  { label: "Free Scans", val: "15/mo" },
   { label: "Recipes Generated", val: "1M+" },
   { label: "Cost to Start", val: "$0" },
   { label: "App Store Rating", val: "4.9" },
@@ -13,7 +13,7 @@ export const FEATURES = [
     description:
       "Photo recognition that actually works. Know what you have instantly.",
     icon: Camera,
-    limit: "10 scans/mo free",
+    limit: "15 scans/mo free",
   },
   {
     title: "AI Chef Suggestions",
@@ -58,7 +58,6 @@ export const HOW_IT_WORKS_STEPS = [
 // Helper function for category emojis
 export function getCategoryEmoji(category) {
   const emojiMap = {
-    Beef: "🥩",
     Chicken: "🍗",
     Dessert: "🍰",
     Lamb: "🍖",
@@ -71,7 +70,6 @@ export function getCategoryEmoji(category) {
     Vegan: "🥬",
     Vegetarian: "🥕",
     Breakfast: "🍳",
-    Goat: "🐐",
   };
   return emojiMap[category] || "🍽️";
 }

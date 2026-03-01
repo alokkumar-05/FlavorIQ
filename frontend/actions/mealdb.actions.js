@@ -36,9 +36,15 @@ export async function getCategories() {
     }
 
     const data = await response.json();
+
+    // Filter out Beef and Goat as requested
+    const filteredCategories = data.meals?.filter(
+      (category) => category.strCategory !== "Beef" && category.strCategory !== "Goat"
+    ) || [];
+
     return {
       success: true,
-      categories: data.meals || [],
+      categories: filteredCategories,
     };
   } catch (error) {
     console.error("Error fetching categories:", error);
