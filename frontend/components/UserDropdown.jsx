@@ -5,8 +5,8 @@ import { UserButton } from "@clerk/nextjs"
 import { Cookie, Refrigerator } from "lucide-react";
 
 const UserDropdown = () => {
-    return(
-     <UserButton>
+  return (
+    <UserButton afterSignOutUrl="/">
       <UserButton.MenuItems>
         <UserButton.Link
           label="My Recipes"
