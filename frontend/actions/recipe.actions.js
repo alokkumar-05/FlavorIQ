@@ -612,7 +612,13 @@ Rules:
     };
   } catch (error) {
     console.error("❌ Error in getRecipesByPantryIngredients:", error);
-    return { success: false, message: error.message || "Failed to get recipe suggestions" };
+    
+    let errorMessage = error.message || "Failed to get recipe suggestions";
+    if (errorMessage.includes("429") || errorMessage.includes("Quota exceeded")) {
+      errorMessage = "AI service is currently busy (Rate Limit). Please wait about 30 seconds and try again.";
+    }
+
+    return { success: false, message: errorMessage };
   }
 }
 
