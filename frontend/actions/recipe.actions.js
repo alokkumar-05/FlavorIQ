@@ -355,7 +355,17 @@ Guidelines:
     };
   } catch (error) {
     console.error("❌ Error in getOrGenerateRecipe:", error);
-    throw new Error(error.message || "Failed to load recipe");
+    
+    let errorMessage = error.message || "Failed to load recipe";
+    const fullErrorStr = String(error);
+    if (fullErrorStr.includes("429") || fullErrorStr.includes("Quota exceeded") || fullErrorStr.includes("Too Many Requests")) {
+      errorMessage = "AI service is currently busy (Rate Limit). Please wait about 30 seconds and try again.";
+    }
+
+    return { 
+      success: false, 
+      message: errorMessage,
+    };
   }
 }
 
