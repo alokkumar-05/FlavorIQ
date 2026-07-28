@@ -498,6 +498,7 @@ export async function removeRecipeFromCollection(formData) {
 
 // Get recipes based on pantry ingredients
 export async function getRecipesByPantryIngredients() {
+  let isPro = false;
   try {
     const user = await checkUser();
     if (!user) {
@@ -505,7 +506,7 @@ export async function getRecipesByPantryIngredients() {
     }
 
     // ✅ ARCJET RATE LIMIT CHECK
-    const isPro = user.subscriptionTier === "pro";
+    isPro = user.subscriptionTier === "pro";
     const arcjetClient = isPro ? proTierLimit : freeMealRecommendations;
 
     // Create a request object for Arcjet
@@ -619,7 +620,11 @@ Rules:
       errorMessage = "AI service is currently busy (Rate Limit). Please wait about 30 seconds and try again.";
     }
 
-    return { success: false, message: errorMessage };
+    return { 
+      success: false, 
+      message: errorMessage,
+      recommendationsLimit: isPro ? "unlimited" : 5
+    };
   }
 }
 
