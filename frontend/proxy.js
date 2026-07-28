@@ -13,23 +13,20 @@ const isProtectedRoute = createRouteMatcher([
 const aj = arcjet({
   key: process.env.ARCJET_KEY,
   rules: [
-    // Shield WAF - protects against SQL injection, XSS, etc.
     shield({
-      mode: "LIVE", // Change to "DRY_RUN" to test without blocking
+      mode: "LIVE", 
     }),
-
-    // Bot detection - allow search engines, block malicious bots
     detectBot({
       mode: "LIVE",
       allow: [
-        "CATEGORY:SEARCH_ENGINE", // Google, Bing, etc.
-        "CATEGORY:PREVIEW", // Link previews (Slack, Discord, etc.)
+        "CATEGORY:SEARCH_ENGINE", 
+        "CATEGORY:PREVIEW", 
       ],
     }),
   ],
 });
 
-export default clerkMiddleware(async (auth, req) => {
+export const proxy = clerkMiddleware(async (auth, req) => {
   const {userId,redirectToSignIn}=await auth();
   if(!userId && isProtectedRoute(req)){
     return redirectToSignIn();
@@ -39,9 +36,7 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
     '/(api|trpc)(.*)',
   ],
 };
