@@ -28,10 +28,19 @@ import {
 } from "@/actions/recipe.actions";
 import { toast } from "sonner";
 import Image from "next/image";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import { RecipePDF } from "@/components/RecipePDF";
+import dynamic from "next/dynamic";
 import { ClockLoader } from "react-spinners";
 import ProLockedSection from "@/components/ProLockedSection";
+
+const RecipePDFButton = dynamic(() => import("@/components/RecipePDFButton"), {
+  ssr: false,
+  loading: () => (
+    <Button variant="outline" disabled className="border-2 border-orange-600 text-orange-700 hover:bg-orange-50 gap-2">
+      <Download className="w-4 h-4" />
+      Preparing PDF...
+    </Button>
+  ),
+});
 
 function RecipeContent() {
   const searchParams = useSearchParams();
@@ -313,23 +322,7 @@ function RecipeContent() {
                   </>
                 )}
               </Button>
-              <PDFDownloadLink
-                document={<RecipePDF recipe={recipe} />}
-                fileName={`${recipe.title
-                  .replace(/\s+/g, "-")
-                  .toLowerCase()}.pdf`}
-              >
-                {({ loading }) => (
-                  <Button
-                    variant="outline"
-                    className="border-2 border-orange-600 text-orange-700 hover:bg-orange-50 gap-2"
-                    disabled={loading}
-                  >
-                    <Download className="w-4 h-4" />
-                    {loading ? "Preparing PDF..." : "Download PDF"}
-                  </Button>
-                )}
-              </PDFDownloadLink>
+              <RecipePDFButton recipe={recipe} />
             </div>
           </div>
         </div>
