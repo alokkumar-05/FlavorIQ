@@ -18,8 +18,8 @@ export const checkUser = async () => {
   }
 
   // Check if user has Pro plan
-  const { has } = await auth();
-  const subscriptionTier = has({ plan: "pro" }) ? "pro" : "free";
+  const authObj = await auth();
+  const subscriptionTier = (authObj?.has && authObj.has({ plan: "pro" })) ? "pro" : "free";
 
   try {
     // Check if user exists in Strapi
