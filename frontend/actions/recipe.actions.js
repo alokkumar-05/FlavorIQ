@@ -314,28 +314,30 @@ Guidelines:
       },
     };
 
-    console.log(
-      "📤 Saving new recipe to database with title:",
-      normalizedTitle
-    );
+    let createdRecipeId = null;
+    try {
+      console.log("📤 Saving new recipe to database with title:", normalizedTitle);
+      const createRecipeResponse = await fetch(`${STRAPI_URL}/api/recipes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${STRAPI_API_TOKEN}`,
+        },
+        body: JSON.stringify(strapiRecipeData),
+      });
 
-    const createRecipeResponse = await fetch(`${STRAPI_URL}/api/recipes`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${STRAPI_API_TOKEN}`,
-      },
-      body: JSON.stringify(strapiRecipeData),
-    });
-
-    if (!createRecipeResponse.ok) {
-      const errorText = await createRecipeResponse.text();
-      console.error("❌ Failed to save recipe:", errorText);
-      throw new Error(`Failed to save recipe to database: ${errorText}`);
+      if (!createRecipeResponse.ok) {
+        const errorText = await createRecipeResponse.text();
+        console.error("❌ Failed to save recipe to database:", errorText);
+        // We DO NOT throw here! We want to return the recipe even if DB save fails.
+      } else {
+        const createdRecipe = await createRecipeResponse.json();
+        createdRecipeId = createdRecipe.data.id;
+        console.log("✅ Recipe saved to database:", createdRecipeId);
+      }
+    } catch (dbError) {
+      console.error("❌ Network error saving to Strapi:", dbError);
     }
-
-    const createdRecipe = await createRecipeResponse.json();
-    console.log("✅ Recipe saved to database:", createdRecipe.data.id);
 
     return {
       success: true,
@@ -346,7 +348,7 @@ Guidelines:
         cuisine,
         imageUrl: imageUrl || "",
       },
-      recipeId: createdRecipe.data.id,
+      recipeId: createdRecipeId,
       isSaved: false,
       fromDatabase: false,
       recommendationsLimit: isPro ? "unlimited" : 5,
