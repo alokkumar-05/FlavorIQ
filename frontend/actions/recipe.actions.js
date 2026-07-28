@@ -518,12 +518,13 @@ export async function getRecipesByPantryIngredients() {
 
     if (decision.isDenied()) {
       if (decision.reason.isRateLimit()) {
-        throw new Error(
-          `Monthly AI recipe limit reached. ${isPro ? "Please contact support." : "Upgrade to Pro!"
-          }`
-        );
+        return {
+          success: false,
+          isRateLimit: true,
+          message: `Monthly AI recipe limit reached. ${isPro ? "Please contact support." : "Upgrade to Pro!"}`
+        };
       }
-      throw new Error("Request denied");
+      return { success: false, message: "Request denied by security system" };
     }
 
     // Get user's pantry items
@@ -546,6 +547,7 @@ export async function getRecipesByPantryIngredients() {
     if (!pantryData.data || pantryData.data.length === 0) {
       return {
         success: false,
+        isEmptyPantry: true,
         message: "Your pantry is empty. Add ingredients first!",
       };
     }
@@ -610,7 +612,7 @@ Rules:
     };
   } catch (error) {
     console.error("❌ Error in getRecipesByPantryIngredients:", error);
-    throw new Error(error.message || "Failed to get recipe suggestions");
+    return { success: false, message: error.message || "Failed to get recipe suggestions" };
   }
 }
 

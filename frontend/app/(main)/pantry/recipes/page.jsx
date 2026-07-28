@@ -162,7 +162,7 @@ export default function PantryRecipesPage() {
         )}
 
         {/* Empty Pantry State */}
-        {!loading && recipes.length === 0 && recipesData?.success === false && (
+        {!loading && recipes.length === 0 && recipesData?.isEmptyPantry === true && (
           <div className="bg-white p-12 text-center border-2 border-dashed border-stone-200">
             <div className="bg-orange-50 w-20 h-20 border-2 border-orange-200 flex items-center justify-center mx-auto mb-6">
               <AlertCircle className="w-10 h-10 text-orange-600" />
@@ -194,7 +194,7 @@ export default function PantryRecipesPage() {
         )}
 
         {/* Rate Limit Reached */}
-        {!loading && recipesData === undefined && (
+        {!loading && recipesData?.isRateLimit === true && (
           <div className="bg-linear-to-br from-orange-50 to-amber-50 p-12 text-center border-2 border-orange-200">
             <div className="bg-orange-100 w-20 h-20 border-2 border-orange-200 flex items-center justify-center mx-auto mb-6">
               <Sparkles className="w-10 h-10 text-orange-600" />
@@ -212,6 +212,28 @@ export default function PantryRecipesPage() {
                 Upgrade to Pro
               </Button>
             </PricingModal>
+          </div>
+        )}
+
+        {/* Generic Error State */}
+        {!loading && recipes.length === 0 && recipesData?.success === false && !recipesData?.isRateLimit && !recipesData?.isEmptyPantry && (
+          <div className="bg-white p-12 text-center border-2 border-dashed border-stone-200">
+            <div className="bg-red-50 w-20 h-20 border-2 border-red-200 flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="w-10 h-10 text-red-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-stone-900 mb-2">
+              Failed to get recipes
+            </h3>
+            <p className="text-stone-600 mb-8 max-w-md mx-auto font-light">
+              {recipesData.message || "Something went wrong. Please try again."}
+            </p>
+            <Button
+              onClick={() => fetchSuggestions(new FormData())}
+              className="bg-orange-600 hover:bg-orange-700 text-white gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              Try Again
+            </Button>
           </div>
         )}
       </div>
