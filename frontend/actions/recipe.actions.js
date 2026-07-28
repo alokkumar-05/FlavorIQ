@@ -297,17 +297,17 @@ Guidelines:
     const strapiRecipeData = {
       data: {
         tittle: normalizedTitle,
-        description: recipeData.description,
+        description: recipeData.description || "",
         cuisine,
         category,
-        ingredients: recipeData.ingredients,
-        instructions: recipeData.instructions,
-        prepTime: Number(recipeData.prepTime),
-        cookTime: Number(recipeData.cookTime),
-        servings: Number(recipeData.servings),
-        nutrition: recipeData.nutrition,
-        tips: recipeData.tips,
-        susbtitutions: recipeData.substitutions,
+        ingredients: recipeData.ingredients || [],
+        instructions: recipeData.instructions || [],
+        prepTime: Number(recipeData.prepTime) || 0,
+        cookTime: Number(recipeData.cookTime) || 0,
+        servings: Number(recipeData.servings) || 1,
+        nutrition: recipeData.nutrition || {},
+        tips: recipeData.tips || [],
+        susbtitutions: recipeData.substitutions || [],
         imageUrl: imageUrl || "",
         isPublic: true,
         author: user.id,
@@ -331,7 +331,7 @@ Guidelines:
     if (!createRecipeResponse.ok) {
       const errorText = await createRecipeResponse.text();
       console.error("❌ Failed to save recipe:", errorText);
-      throw new Error("Failed to save recipe to database");
+      throw new Error(`Failed to save recipe to database: ${errorText}`);
     }
 
     const createdRecipe = await createRecipeResponse.json();
