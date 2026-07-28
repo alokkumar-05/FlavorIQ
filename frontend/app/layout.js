@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
           </main>
           <Toaster richColors />
           <footer className="py-8 px-4 border-t">
-            <div className="max-w-6xl max-auto flex justify-center items-center">
+            <div className="max-w-6xl mx-auto flex justify-center items-center">
               <p className="text-stone-500 text-sm">Made with ❤️ by FlavorIQ</p>
             </div>
           </footer>
