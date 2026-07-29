@@ -270,12 +270,6 @@ npm run dev
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](backend/license.txt) file for details.
-
----
-
 <p align="center">
   Made with ❤️ by <strong>FlavorIQ</strong>
 </p>
